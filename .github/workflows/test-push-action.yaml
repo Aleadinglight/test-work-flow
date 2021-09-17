@@ -18,6 +18,7 @@ jobs:
       - name: create local changes
         run: |
           cat test.txt
+          touch generated.txt
       - name: Commit files
         run: |
           git config --local user.email "huutam.ptnk@gmail.com"
