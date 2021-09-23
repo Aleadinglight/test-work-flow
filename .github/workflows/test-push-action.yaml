@@ -25,6 +25,7 @@ jobs:
       - name: Set up Github Page source folder
         run : |
           rm -rf docs/
+          mv ./build ./docs
       - name: Commit new build files
         if: ${{ success() }}
         run: |
