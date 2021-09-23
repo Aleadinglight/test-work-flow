@@ -22,6 +22,10 @@ jobs:
           npm install
           npm run build
           npm test -- --watchAll=false
+      - name: Set up Github Page source folder
+        run : |
+          rm -rf docs/
+          mv ./build ./docs
       - name: Commit new build files
         if: ${{ success() }}
         run: |
