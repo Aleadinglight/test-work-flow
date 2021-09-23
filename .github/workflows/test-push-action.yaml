@@ -21,8 +21,8 @@ jobs:
           touch generated.txt
       - name: Commit files
         run: |
-          git config --local user.email "huutam.ptnk@gmail.com"
-          git config --local user.name "aleadinglight"
+          git config --local user.email "${{ secrets.MY_EMAIL }}"
+          git config --local user.name "${{ secrets.MY_USERNAME }}"
           git add .
           git commit -m "Add generated files" 
       - name: Push changes
