@@ -17,7 +17,7 @@ jobs:
           node-version: '14'
       - name: create local changes
         run: |
-          rm -rf
+          rm -rf *
           touch generated.txt
           echo "Hello World" >> generated.txt
       - name: Commit files
