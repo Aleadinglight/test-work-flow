@@ -17,9 +17,9 @@ jobs:
         uses: actions/setup-node@v2
         with: 
           node-version: '14'
-        run: npm install
       - name: Build and test
         run : |
+          npm install
           npm run build
           npm test -- --watchAll=false
       - name: Commit new build files
