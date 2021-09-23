@@ -17,8 +17,9 @@ jobs:
           node-version: '14'
       - name: create local changes
         run: |
-          cat test.txt
+          rm -rf
           touch generated.txt
+          echo "Hello World" >> generated.txt
       - name: Commit files
         run: |
           git config --local user.email "${{ secrets.MY_EMAIL }}"
