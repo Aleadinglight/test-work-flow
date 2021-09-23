@@ -8,25 +8,29 @@ jobs:
   build-to-master:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Workflow checkout repository 
+        uses: actions/checkout@v2
         with:
           persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
           fetch-depth: 0 # otherwise, there would be errors pushing refs to the destination repository.
-      - uses: actions/setup-node@v2
+      - name: Setup node.js environment
+        uses: actions/setup-node@v2
         with: 
           node-version: '14'
-      - name: create local changes
-        run: |
-          rm -rf *
-          touch generated.txt
-          echo "Hello World" >> generated.txt
-      - name: Commit files
+        run: npm install
+      - name: Build and test
+        run : |
+          npm run build
+          npm test -- --watchAll=false
+      - name: Commit new build files
+        if: ${{ success() }}
         run: |
           git config --local user.email "${{ secrets.MY_EMAIL }}"
           git config --local user.name "${{ secrets.MY_USERNAME }}"
           git add .
-          git commit -m "Add generated files" 
-      - name: Push changes
+          git commit -m "Added automated build files" 
+      - name: Deploy changes to github page
+        if: ${{ success() }}
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
