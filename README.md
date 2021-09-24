@@ -1,70 +1,65 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Using Github Action To Automate Workflow
 
-## Available Scripts
+Personal notes on how to set up github action as a CI/CD for automating workflow.
 
-In the project directory, you can run:
+## Setting up github page
+Go to **Repository settings > Pages**, choose a branch and folder for hosting. Mine is on branch master and /docs folder.
 
-### `npm start`
+Create another branch, for example here **/dev** branch, and checkout this branch.
+This will the main workspace in our local environment. Any new features or hot-fix will be committed to this **/dev**, and we will set up the **Github Action** to automate the deployment to **/master** branch. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Set up local development
+Create react application with `create-react-app`:
+```bash
+npx create-react-app my-app
+cd my-app
+npm start
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Add a `homepage` attribute to your `package.json` for relative path.
 
-### `npm test`
+```json
+{
+	"name": "my-app",
+	"version": "0.1.0",
+	"homepage": ".",
+	"private": true,
+	...
+}
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Setting instructions for our workflow 
+Clone project and checkout **/dev** branch. 
 
-### `npm run build`
+Create a new github file in: `.github/workflows/test-push-action.yaml`. Here under `.workflows/` folder we can have multiple action files for multiple different processes.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Some key notes:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+-	The workflow instruction for a trigger in branch **/dev** must be place inside branch **/dev**. Same for other branches.
+-	Each action can contain multiple **jobs**. These job run in different workspace, so you have to use **actions/checkout@v2** for each of them. The environment will also different so you need to also run **actions/setup-node@v2** and other environment settings (if exist) again. 
+-	Each **job** can contains multiple **steps**. These step is execute one-by-one and you can add condition to handle failure of the previous step.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Some workflow action requires token for authorization. These tokens can be added via **Repository settings > Secrets**. 
 
-### `npm run eject`
+Because we don't want interactive mode when we run our test via Github Action, we would set our test command to `npm test -- --watchAll=false` in our `.yaml` file.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+We also need to change the `build/` folder name to `docs/` for hosting purpose. The easiest way to do it is to rename it in the **terminal**. So something like this will do.
+```yaml
+	- name: Build and test
+		run : |
+			npm install
+			npm run build
+			npm test -- --watchAll=false
+	- name: Set up Github Page source folder
+		run : |
+			rm -rf docs/
+			mv ./build ./docs
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## The process
+- Every time someone push to **/dev** branch -> The workflow is triggered.
+- The repository is checkout in a specific environment.
+- Build & test the new update.
+- Some third party tools do some check up and optimization.
+- If everything is fine, the changes is pushed to the master branch and deployed to the project page.
