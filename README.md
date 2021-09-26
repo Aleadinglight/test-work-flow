@@ -60,6 +60,6 @@ We also need to change the `build/` folder name to `docs/` for hosting purpose. 
 ## The process
 - Every time someone push to **/dev** branch -> The workflow is triggered.
 - The repository is checkout in a specific environment.
-- Build & test the new update.
+- Build & test the new updates.
 - Some third party tools do some check up and optimization.
 - If everything is fine, the changes is pushed to the master branch and deployed to the project page.
